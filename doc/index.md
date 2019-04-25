@@ -22,6 +22,7 @@ Open the app and click the camera button. Scan the provided QR code.
 ## Configuration templates
 If you administrate an LDAP server and want to make the configuration easier for your users, you can provide configuration links and QR codes. The required format is described below. Code in PHP and JS to generate can be found [here](https://github.com/d120/ldap-web/blob/master/ldapsync.php#L52), and a simplified version is provided below.
 
+You can also use the provided [generator for config links](generator.html).
 
 ### Create configuration links and QR codes
 
