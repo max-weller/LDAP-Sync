@@ -35,6 +35,7 @@ public class Contact {
 	private String dn = "";
 	private String firstName = "";
 	private String lastName = "";
+	private String nickname = "";
 	private String cellWorkPhone = "";
 	private String workPhone = "";
 	private String homePhone = "";
@@ -62,8 +63,16 @@ public class Contact {
 		return lastName;
 	}
 
+	public String getNickname() {
+		return nickname;
+	}
+
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public void setCellWorkPhone(String cellWorkPhone) {
@@ -132,6 +141,7 @@ public class Contact {
 			if (getAttributevalue(user, preferences, "last_name") == null || getAttributevalue(user, preferences, "first_name") == null) {
 				return null;
 			}
+			c.setNickname(getAttributevalue(user, preferences, "nickname"));
 			c.setWorkPhone(getAttributevalue(user, preferences, "office_phone"));
 			c.setCellWorkPhone(getAttributevalue(user, preferences, "cell_phone"));
 			c.setHomePhone(getAttributevalue(user, preferences, "home_phone"));

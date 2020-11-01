@@ -41,6 +41,7 @@ import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.Settings;
 import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
@@ -117,6 +118,8 @@ public class ContactManager {
 					//existingContact.setDisplayName(c.getString(c.getColumnIndex(Data.DATA1)));
 					existingContact.setFirstName(c.getString(c.getColumnIndex(Data.DATA2)));
 					existingContact.setLastName(c.getString(c.getColumnIndex(Data.DATA3)));
+				} else if (mimetype.equals(Nickname.CONTENT_ITEM_TYPE)) {
+					existingContact.setNickname(c.getString(c.getColumnIndex(Data.DATA1)));
 				} else if (mimetype.equals(Email.CONTENT_ITEM_TYPE)) {
 					int type = c.getInt(c.getColumnIndex(Data.DATA2));
 					if (type == Email.TYPE_WORK) {
@@ -212,6 +215,8 @@ public class ContactManager {
 					if (mimetype.equals(StructuredName.CONTENT_ITEM_TYPE)) {
 						existingContact.setFirstName(c.getString(c.getColumnIndex(Data.DATA2)));
 						existingContact.setLastName(c.getString(c.getColumnIndex(Data.DATA3)));
+					} else if (mimetype.equals(Nickname.CONTENT_ITEM_TYPE)) {
+						existingContact.setNickname(c.getString(c.getColumnIndex(Data.DATA1)));
 					} else if (mimetype.equals(Email.CONTENT_ITEM_TYPE)) {
 						int type = c.getInt(c.getColumnIndex(Data.DATA2));
 						if (type == Email.TYPE_WORK) {
@@ -335,6 +340,7 @@ public class ContactManager {
 	private void prepareFields(long rawContactId, Contact newC, Contact existingC, ArrayList<ContentProviderOperation> ops, boolean isNew) {
 		ContactMerger contactMerger = new ContactMerger(rawContactId, newC, existingC, ops, l);
 		contactMerger.updateName();
+		contactMerger.updateNickname();
 		contactMerger.updateMail(Email.TYPE_WORK);
 
 		contactMerger.updatePhone(Phone.TYPE_WORK_MOBILE);

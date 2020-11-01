@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
@@ -73,6 +74,27 @@ public class ContactMerger {
 			Builder updateOp = ContentProviderOperation.newUpdate(addCallerIsSyncAdapterFlag(Data.CONTENT_URI)).withSelection(
 					Data.RAW_CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?", new String[] { rawContactId + "", StructuredName.CONTENT_ITEM_TYPE })
 					.withValues(cv);
+			ops.add(updateOp.build());
+		}
+	}
+
+	public void updateNickname() {
+		String selection = Data.RAW_CONTACT_ID + "=? AND " + Nickname.MIMETYPE + "=?";
+		if (TextUtils.isEmpty(newC.getNickname()) && !TextUtils.isEmpty(existingC.getNickname())) {
+			l.d("Delete nickname (" + existingC.getNickname() + ")");
+			ops.add(ContentProviderOperation.newDelete(addCallerIsSyncAdapterFlag(Data.CONTENT_URI)).withSelection(selection,
+					new String[] { rawContactId + "", Nickname.CONTENT_ITEM_TYPE }).build());
+		} else if (!TextUtils.isEmpty(newC.getNickname()) && TextUtils.isEmpty(existingC.getNickname())) {
+			l.d("Add nickname (" + newC.getNickname() + ")");
+			ContentValues cv = new ContentValues();
+			cv.put(Nickname.NAME, newC.getNickname());
+			cv.put(Nickname.MIMETYPE, Nickname.CONTENT_ITEM_TYPE);
+			Builder insertOp = createInsert(rawContactId, cv);
+			ops.add(insertOp.build());
+		} else if (!TextUtils.isEmpty(newC.getNickname()) && !newC.getNickname().equals(existingC.getNickname())) {
+			l.d("Update nickname (" + existingC.getNickname() + " => " + newC.getNickname() + ")");
+			Builder updateOp = ContentProviderOperation.newUpdate(addCallerIsSyncAdapterFlag(Data.CONTENT_URI)).withSelection(selection,
+					new String[] { rawContactId + "", Nickname.CONTENT_ITEM_TYPE }).withValue(Nickname.NAME, newC.getNickname());
 			ops.add(updateOp.build());
 		}
 	}

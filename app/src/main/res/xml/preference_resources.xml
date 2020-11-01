@@ -26,6 +26,10 @@
                 android:key="last_name"
                 android:title="Last Name"/>
         <EditTextPreference
+                android:defaultValue=""
+                android:key="nickname"
+                android:title="Nickname"/>
+        <EditTextPreference
                 android:defaultValue="telephonenumber"
                 android:key="office_phone"
                 android:title="Office Phone"/>

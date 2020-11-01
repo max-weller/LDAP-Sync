@@ -38,6 +38,7 @@
 	<string name="login_activity_ldap_mappings_label">LDAP Zuordnungen</string>
 	<string name="login_activity_firstname_label">Vorname</string>
 	<string name="login_activity_lastname_label">Nachname</string>
+	<string name="login_activity_nickname_label">Spitzname</string>
 	<string name="login_activity_officephone_label">Geschäftsnummer</string>
 	<string name="login_activity_cellphone_label">Mobilnummer</string>
 	<string name="login_activity_homephone_label">Heimnummer</string>
