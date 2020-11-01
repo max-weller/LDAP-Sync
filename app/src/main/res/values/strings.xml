@@ -38,6 +38,7 @@
     <string name="login_activity_ldap_mappings_label">LDAP Mappings</string>
     <string name="login_activity_firstname_label">First Name</string>
     <string name="login_activity_lastname_label">Last Name</string>
+    <string name="login_activity_nickname_label">Nickname</string>
     <string name="login_activity_officephone_label">Office Phone</string>
     <string name="login_activity_cellphone_label">Cell Phone</string>
     <string name="login_activity_homephone_label">Home Phone</string>
