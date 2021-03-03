@@ -31,12 +31,16 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.RootDSE;
+import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 
 import de.wikilab.android.ldapsync.R;
 import de.wikilab.android.ldapsync.activity.SyncErrorActivity;
@@ -119,15 +123,39 @@ public class LDAPUtilities {
 		LDAPConnection connection = null;
 		try {
 			connection = ldapServer.getConnection();
-			SearchResult searchResult = connection.search(baseDN, SearchScope.SUB, searchFilter, getUsedAttributes(preferences));
-			Log.i(TAG, searchResult.getEntryCount() + " entries returned.");
+			SearchRequest searchRequest = new SearchRequest(
+					baseDN,
+					SearchScope.SUB,
+					searchFilter,
+					getUsedAttributes(preferences)
+			);
+			ASN1OctetString resumeCookie = null;
+			int numSearches = 0;
+			int totalEntriesReturned = 0;
+			while (true) {
+				searchRequest.setControls(new SimplePagedResultsControl(500, resumeCookie));
+				SearchResult searchResult = connection.search(searchRequest);
+				numSearches++;
+				totalEntriesReturned += searchResult.getEntryCount();
+				for (SearchResultEntry e : searchResult.getSearchEntries()) {
+					Contact u = Contact.valueOf(e, preferences);
+					if (u != null) {
+						friendList.add(u);
+					}
+				}
 
-			for (SearchResultEntry e : searchResult.getSearchEntries()) {
-				Contact u = Contact.valueOf(e, preferences);
-				if (u != null) {
-					friendList.add(u);
+//				LDAPTestUtils.assertHasControl(searchResult, SimplePagedResultsControl.PAGED_RESULTS_OID);
+				SimplePagedResultsControl responseControl = SimplePagedResultsControl.get(searchResult);
+				if (responseControl.moreResultsToReturn()) {
+					// The resume cookie can be included in the simple paged results
+					// control included in the next search to get the next page of results.
+					resumeCookie = responseControl.getCookie();
+				} else {
+					break;
 				}
 			}
+			Log.i(TAG, totalEntriesReturned + " entries returned.");
+
 		} catch (LDAPException e) {
 			Log.v(TAG, "LDAPException on fetching contacts", e);
 			showErrorNotification(context, e);
@@ -139,9 +167,13 @@ public class LDAPUtilities {
 		}
 
 		return friendList;
-	}
+//		} catch (LDAPSearchException e) {
+//			e.printStackTrace();
+//		} catch (LDAPException e) {
+//			e.printStackTrace();
+		}
 
-	private static void showErrorNotification(Context context, Throwable e) {
+		private static void showErrorNotification(Context context, Throwable e) {
 		NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		CharSequence tickerText = "Error on LDAP Sync";
