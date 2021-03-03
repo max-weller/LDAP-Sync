@@ -194,11 +194,11 @@ public class LDAPUtilities {
 
 	private static String[] getUsedAttributes(SharedPreferences preferences) {
 		ArrayList<String> ldapAttributes = new ArrayList<String>();
-		String[] ldapArray = new String[preferences.getAll().size() - 2];
 		for (String key : preferences.getAll().keySet()) {
 			if (!(key.equals("baseDN") || key.equals("searchFilter")))
 			ldapAttributes.add(preferences.getString(key, ""));
 		}
+		String[] ldapArray = new String[ldapAttributes.size()];
 		ldapArray = ldapAttributes.toArray(ldapArray);
 		return ldapArray;
 	}
