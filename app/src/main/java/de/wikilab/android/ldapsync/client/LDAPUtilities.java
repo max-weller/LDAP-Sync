@@ -143,12 +143,8 @@ public class LDAPUtilities {
 						friendList.add(u);
 					}
 				}
-
-//				LDAPTestUtils.assertHasControl(searchResult, SimplePagedResultsControl.PAGED_RESULTS_OID);
 				SimplePagedResultsControl responseControl = SimplePagedResultsControl.get(searchResult);
 				if (responseControl.moreResultsToReturn()) {
-					// The resume cookie can be included in the simple paged results
-					// control included in the next search to get the next page of results.
 					resumeCookie = responseControl.getCookie();
 				} else {
 					break;
