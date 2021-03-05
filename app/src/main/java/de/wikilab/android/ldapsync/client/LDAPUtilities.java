@@ -131,12 +131,12 @@ public class LDAPUtilities {
 			);
 			ASN1OctetString resumeCookie = null;
 			int numSearches = 0;
-			int totalEntriesReturned = 0;
+			int numEntries = 0;
 			while (true) {
 				searchRequest.setControls(new SimplePagedResultsControl(500, resumeCookie));
 				SearchResult searchResult = connection.search(searchRequest);
 				numSearches++;
-				totalEntriesReturned += searchResult.getEntryCount();
+				numEntries += searchResult.getEntryCount();
 				for (SearchResultEntry e : searchResult.getSearchEntries()) {
 					Contact u = Contact.valueOf(e, preferences);
 					if (u != null) {
@@ -154,7 +154,7 @@ public class LDAPUtilities {
 					break;
 				}
 			}
-			Log.i(TAG, totalEntriesReturned + " entries returned.");
+			Log.i(TAG, numEntries + " entries returned from " + numSearches + " result loops");
 
 		} catch (LDAPException e) {
 			Log.v(TAG, "LDAPException on fetching contacts", e);
@@ -167,13 +167,9 @@ public class LDAPUtilities {
 		}
 
 		return friendList;
-//		} catch (LDAPSearchException e) {
-//			e.printStackTrace();
-//		} catch (LDAPException e) {
-//			e.printStackTrace();
-		}
+	}
 
-		private static void showErrorNotification(Context context, Throwable e) {
+	private static void showErrorNotification(Context context, Throwable e) {
 		NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		CharSequence tickerText = "Error on LDAP Sync";
