@@ -123,12 +123,7 @@ public class LDAPUtilities {
 		LDAPConnection connection = null;
 		try {
 			connection = ldapServer.getConnection();
-			SearchRequest searchRequest = new SearchRequest(
-					baseDN,
-					SearchScope.SUB,
-					searchFilter,
-					getUsedAttributes(preferences)
-			);
+			SearchRequest searchRequest = new SearchRequest(baseDN, SearchScope.SUB, searchFilter, getUsedAttributes(preferences));
 			ASN1OctetString resumeCookie = null;
 			int numSearches = 0;
 			int numEntries = 0;
@@ -152,6 +147,11 @@ public class LDAPUtilities {
 			}
 			Log.i(TAG, numEntries + " entries returned from " + numSearches + " result loops");
 
+			return friendList;
+		} catch (LDAPSearchException se) {
+			Log.v(TAG, "LDAPSearchException on fetching contacts", se);
+			showErrorNotification(context, se);
+			return null;
 		} catch (LDAPException e) {
 			Log.v(TAG, "LDAPException on fetching contacts", e);
 			showErrorNotification(context, e);
@@ -162,7 +162,6 @@ public class LDAPUtilities {
 			}
 		}
 
-		return friendList;
 	}
 
 	private static void showErrorNotification(Context context, Throwable e) {
