@@ -31,12 +31,16 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.RootDSE;
+import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 
 import de.wikilab.android.ldapsync.R;
 import de.wikilab.android.ldapsync.activity.SyncErrorActivity;
@@ -119,15 +123,35 @@ public class LDAPUtilities {
 		LDAPConnection connection = null;
 		try {
 			connection = ldapServer.getConnection();
-			SearchResult searchResult = connection.search(baseDN, SearchScope.SUB, searchFilter, getUsedAttributes(preferences));
-			Log.i(TAG, searchResult.getEntryCount() + " entries returned.");
-
-			for (SearchResultEntry e : searchResult.getSearchEntries()) {
-				Contact u = Contact.valueOf(e, preferences);
-				if (u != null) {
-					friendList.add(u);
+			SearchRequest searchRequest = new SearchRequest(baseDN, SearchScope.SUB, searchFilter, getUsedAttributes(preferences));
+			ASN1OctetString resumeCookie = null;
+			int numSearches = 0;
+			int numEntries = 0;
+			while (true) {
+				searchRequest.setControls(new SimplePagedResultsControl(500, resumeCookie));
+				SearchResult searchResult = connection.search(searchRequest);
+				numSearches++;
+				numEntries += searchResult.getEntryCount();
+				for (SearchResultEntry e : searchResult.getSearchEntries()) {
+					Contact u = Contact.valueOf(e, preferences);
+					if (u != null) {
+						friendList.add(u);
+					}
+				}
+				SimplePagedResultsControl responseControl = SimplePagedResultsControl.get(searchResult);
+				if (responseControl.moreResultsToReturn()) {
+					resumeCookie = responseControl.getCookie();
+				} else {
+					break;
 				}
 			}
+			Log.i(TAG, numEntries + " entries returned from " + numSearches + " result loops");
+
+			return friendList;
+		} catch (LDAPSearchException se) {
+			Log.v(TAG, "LDAPSearchException on fetching contacts", se);
+			showErrorNotification(context, se);
+			return null;
 		} catch (LDAPException e) {
 			Log.v(TAG, "LDAPException on fetching contacts", e);
 			showErrorNotification(context, e);
@@ -138,7 +162,6 @@ public class LDAPUtilities {
 			}
 		}
 
-		return friendList;
 	}
 
 	private static void showErrorNotification(Context context, Throwable e) {

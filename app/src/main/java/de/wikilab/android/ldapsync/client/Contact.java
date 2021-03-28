@@ -127,14 +127,14 @@ public class Contact {
 		Contact c = new Contact();
 		try {
 			c.setDn(user.getDN());
-			c.setFirstName(getAttributevalue(user, preferences, "first_name"));
-			c.setLastName(getAttributevalue(user, preferences, "last_name"));
-			if (getAttributevalue(user, preferences, "last_name") == null || getAttributevalue(user, preferences, "first_name") == null) {
+			c.setFirstName(getAttributeValue(user, preferences, "first_name"));
+			c.setLastName(getAttributeValue(user, preferences, "last_name"));
+			if (getAttributeValue(user, preferences, "last_name") == null || getAttributeValue(user, preferences, "first_name") == null) {
 				return null;
 			}
-			c.setWorkPhone(getAttributevalue(user, preferences, "office_phone"));
-			c.setCellWorkPhone(getAttributevalue(user, preferences, "cell_phone"));
-			c.setHomePhone(getAttributevalue(user, preferences, "home_phone"));
+			c.setWorkPhone(getAttributeValue(user, preferences, "office_phone"));
+			c.setCellWorkPhone(getAttributeValue(user, preferences, "cell_phone"));
+			c.setHomePhone(getAttributeValue(user, preferences, "home_phone"));
 			c.setEmails(
                     user.hasAttribute(preferences.getString("email", ""))
                             ? user.getAttributeValues(preferences.getString("email", ""))
@@ -163,11 +163,11 @@ public class Contact {
 					|| user.hasAttribute(preferences.getString("state", "")) || user.hasAttribute(preferences.getString("postalCode", ""))
 					|| user.hasAttribute(preferences.getString("country", ""))) {
 				Address a = new Address();
-				a.setStreet(getAttributevalue(user, preferences, "street"));
-				a.setCity(getAttributevalue(user, preferences, "city"));
-				a.setState(getAttributevalue(user, preferences, "state"));
-				a.setZip(getAttributevalue(user, preferences, "postalCode"));
-				a.setCountry(getAttributevalue(user, preferences, "country"));
+				a.setStreet(getAttributeValue(user, preferences, "street"));
+				a.setCity(getAttributeValue(user, preferences, "city"));
+				a.setState(getAttributeValue(user, preferences, "state"));
+				a.setZip(getAttributeValue(user, preferences, "postalCode"));
+				a.setCountry(getAttributeValue(user, preferences, "country"));
 				c.setAddress(a);
 			}
 		} catch (final Exception ex) {
@@ -176,7 +176,7 @@ public class Contact {
 		return c;
 	}
 
-	private static String getAttributevalue(ReadOnlyEntry user, SharedPreferences preferences, String field) {
+	private static String getAttributeValue(ReadOnlyEntry user, SharedPreferences preferences, String field) {
 		return user.hasAttribute(preferences.getString(field, "")) ? user.getAttributeValue(preferences.getString(field, "")) : null;
 	}
 }
